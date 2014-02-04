@@ -28,7 +28,8 @@ while game_not_ended:
     print board.hand_a
 
     print "Number of cards in deck: " + str(len(board.deck))
-    # Player a's turn
+    # Player a's turn, most of this code is just to make sure that the
+    # card is valid
     print "Play a card (type discard to discard and type exit to leave)"    
     card_string = raw_input()
     played_card = card('blue', 2)
@@ -56,9 +57,7 @@ while game_not_ended:
             sys.exit(0)
         played_card.set_card(card_string)
 
-    # Check if card is in hand
-    # Need to specify a way to discard
-   
+    # Play card
     while not board.play_card(played_card, discard, 'a'):
         print "Play a card (type discard to discard and type exit to leave)"    
         card_string = raw_input()
@@ -87,6 +86,7 @@ while game_not_ended:
                 sys.exit(0)
             played_card.set_card(card_string)
 
+    # Draw card
     print "Draw a card (if an invalid color is input, then draw will be from deck):"
     draw_string = raw_input()
     board.draw_card(draw_string, 'a')

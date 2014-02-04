@@ -1,9 +1,69 @@
+##################################################################
+# This file contains strategies.  Currently the interface to these
+# functions is achieved by additing to the if-statements in the
+# choose_play and choose_draw function.  A string is used to access
+# the appropriate strategy.
+##################################################################
+
+# A description of the board methods which can be used for these functions:
+# board variables:
+# 
+# $color_$player: Gives the $color cards $player (a or b) has played
+#
+# $color_discard: Gives the $color cards in discard pile.  The last
+# card is the top of the pile
+#
+# hand_$player: Stores the hand of $player (a or b).  The strategy
+# module should only access the current players hand, otherwise the
+# strategy is engaging in cheating.
+#
+# discard_$player: If $player last play was discard, keeps the
+# color. The strategy module may only look at the top card, otherwise
+# the strategy is involved in cheating.
+#
+# $player_score: Current score of $player
+#
+# color_list: Contains a list of card colors
+#
+# deck: Contains the cards in the deck.  The last card is on top of deck.
+#
+#
+# board methods:
+#
+# __init__: Initializes board.  In particular, it creates a deck of
+# cards, shuffles it and deals 8 cards to each hand.
+#
+# get_color_value(player, color): Returns face value of $color cards
+# played by $player (no investments)
+#
+# get_color_multiplier(player, color): Returns number of played
+# multipliers for $player on $color
+#
+# get_color_high_val(player, color): Returns highest played value for
+# $color and $player
+#
+# calc_score(player): Calculates the score for $player, updates
+# $player_score (other functions, such as play_card, may also update
+# score)
+#
+# len(board.deck): Returns length of deck.
+#
+# board.$color_discard[-1] Returns top card in $color's discard pile.
+
+
+# Choose Play
+#
+# INPUT: board: Current state of game
+#        player: Player whose turn we are deciding
+#        strategy: string which indicates which strategy to use in making decision
+#
+# OUTPUT: card_string.  A string of format "discard $color $value" or "$color $value"
 def choose_play(board, player, strategy):
     # Start with a "simple" strategy
     if strategy == "simple":
         # A simple strategy.  Play card from color with most points
-        # GREATER than 0.  Otherwise, discard card
-        # of color of smallest value
+        # GREATER than 0.  Otherwise, discard card of color of
+        # smallest value
         color_list = board.color_list
         color_values = {'red': 0, 'green': 0, 'white': 0, 'blue': 0, 'yellow': 0}
         color_high_val = {'red': 0, 'green': 0, 'white': 0, 'blue': 0, 'yellow': 0}
@@ -63,6 +123,13 @@ def choose_play(board, player, strategy):
             card_string = "discard " + min_playable_card.color + " " + str(min_playable_card.value)
 
     return card_string
+
+# Choose draw
+# INPUT: board: is the current state of the game.  
+#        player: is the player to decide on a draw.
+#        strategy: is a string which determines the strategy to use to make this decision.
+#
+# OUTPUT: draw_string, a string of the format "deck" or "$color", indicates draw.
 
 def choose_draw(board, player, strategy):
 # Start with a "simple" strategy

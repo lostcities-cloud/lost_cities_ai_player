@@ -7,6 +7,7 @@ from lost_cities import *
 
 print "Welcome to computer vs computer Lost Cities." 
 
+# pick strategies.  This interface is poor, but it works for now.
 print "Please enter a string which represents player a's play strategy: "
 a_play_strat = raw_input()
 
@@ -62,6 +63,7 @@ for x in range(num_games):
         b_first_avg_score += int(result[1])
         a_last_avg_score += int(result[2])
 
+# Present statistical results
 print "Results: Player a won " + str(1.0 * (a_first_wins + a_last_wins) / num_games) + " Player b won " + str(1.0 * (b_first_wins + b_last_wins) / num_games)
 print "Player a's average score was " + str(1.0 * (a_first_avg_score + a_last_avg_score) / num_games)
 print "Player b's average score was " + str(1.0 * (b_first_avg_score + b_last_avg_score) / num_games)
