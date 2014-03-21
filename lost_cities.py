@@ -517,8 +517,9 @@ def play_game(player_a, a_play_strat, a_draw_strat, player_b, b_play_strat, b_dr
     game_not_ended = True
     
     color_list = ["red", "green", "white", "blue", "yellow"]
-        
-#    print board.deck
+      
+    # For debugging the simulator, this line can help
+    # print board.deck
     # Deal initial hands
 
     # Begin Game
@@ -564,9 +565,10 @@ def computer_turn(player, board, play_strat, draw_strat, suppress_output=True):
 
     played_card = card('blue', 2)
     
- #   print player + " made play " + play_string
-  #  print str(getattr(board, "hand_" + player))
-   # print str(board)
+    # For debugging the simulator
+    # print player + " made play " + play_string
+    # print str(getattr(board, "hand_" + player))
+    # print str(board)
         
         # Parse play into string
     if play_list[0] == 'discard':

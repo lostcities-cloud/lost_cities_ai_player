@@ -5,6 +5,7 @@
 # the appropriate strategy.
 ##################################################################
 
+############################################################################
 # A description of the board methods which can be used for these functions:
 # board variables:
 # 
@@ -43,13 +44,13 @@
 # $color and $player
 #
 # calc_score(player): Calculates the score for $player, updates
-# $player_score (other functions, such as play_card, may also update
+# board.player_score (other functions, such as play_card, may also update
 # score)
 #
-# len(board.deck): Returns length of deck.
+# len(board.deck): Returns number of cards in deck.
 #
 # board.$color_discard[-1] Returns top card in $color's discard pile.
-
+##########################################################################
 
 # Choose Play
 #
