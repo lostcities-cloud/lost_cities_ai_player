@@ -143,8 +143,132 @@ def simple_play(board, player):
 def expected_play(board, player):
     # Strategy which values colors/discard based on expected values of
     # colors.  Still thresholded whether to play or discard
-
     
+    hand = getattr(board, "hand_" + player)
+    hand = sorted(hand)
+
+    card_values = {}
+
+    for c in hand:
+        card_values[c] = expected_value(c, board, player)
+
+    max_card = card("blue",1)
+    max = -1000
+    min_card = card("blue",1)
+    min = 1000
+    for c in card_values:
+        if card_values[c] > max:
+            max = card_values[c]
+            max_card = c
+
+        if card_values[c] < min:
+            min = card_values[c]
+            min_card = c
+
+    if max < 0:
+        return "discard " + min_card.color + " " + str(min_card.value)
+    else:
+        return max_card.color + " " + str(max_card.value)
+###
+
+def expected_value(play_card, board, player):
+    # This function gives the expected value of cards above the given
+    # card value assuming that all cards can be played.  Note that
+    # this value is only calculating future plays.  i.e. before a card
+    # is played on a color, the value is -20 + sum(values *
+    # prob. you'll get card).  This ignores the > 8 cardbonus as well.
+
+    # It should be noted that this is actually a weighting of cards
+    # which is intended to be approximately the expected value.  In
+    # particular, other player's actions are not modeled in much detail
+    
+    # Check if card is playable
+    high_val = board.get_color_high_val(player, play_card.color)
+    if play_card.value < high_val:
+        return -81
+
+    # Make a list of all cards above the value
+    
+    card_list = {}
+    for i in range(10):
+        c = card(play_card.color, i+1)
+        if i+1 >= play_card.value:
+            if i+1 == 1:
+                # Aggregated weighting for investments
+                card_list[c] = 1.5
+            else:
+                card_list[c] = 0.5
+    
+    
+    # Now go through the player's hand
+    hand = getattr(board, "hand_" + player)
+    
+    for c in hand:
+        if c in card_list:
+            if c.value == 1:
+                card_list[c] += 0.5
+            else:
+                card_list[c] = 1.0
+
+    enemy_pile = []
+    if player != 'a':
+        enemy_pile = getattr(board, play_card.color + "_a")
+        enemy = 'a'
+    elif player != 'b':
+        enemy_pile = getattr(board, play_card.color + "_b")
+        enemy = 'b'
+    else:
+        print "Player variable is not a or b."
+        return -90
+
+    for c in enemy_pile:
+        if c in card_list:
+            if c.value == 1:
+                card_list[c] += -0.5
+            else:
+                card_list[c] = 0
+
+    # Check through discard pile, note that the exponential fall-off
+    # is a crude approximation
+    discard_pile = getattr(board, play_card.color + "_discard")
+    
+    count = 0
+    for c in discard_pile:
+        if c in card_list:
+            if c.value == 1:
+                # combined investment weighting
+                card_list[c] += (0.5)**(count) - 0.5
+            else:    
+                card_list[c] = (0.5)**(count)
+        count += 1
+
+    # Check about seen cards
+    seen_pile = board.seen_cards
+    for c in seen_pile:
+        if c in card_list:
+            if seen_pile[c] == enemy:
+                # Note, this isn't quite accurate, c could be
+                # discarded by the other player, though it is unlikely
+                card_list[c] = 0
+
+    # Now, add up score, find 
+    cost_to_be_paid = 0
+    if play_card.value > 1:
+        investments = board.get_color_multiplier(player, play_card.color)
+    else:
+        investments = (board.get_color_multiplier(player, play_card.color) - 1.0) * 0.5 + card_list[card(play_card.color, 1)]
+
+    gains_to_be_made = 0
+    
+    if board.get_color_high_val(player, play_card.color) != 0:
+        cost_to_be_paid = -20
+    
+    for c in card_list:
+        if c.value != 1:
+            gains_to_be_made += card_list[c] * c.value
+
+    return (cost_to_be_paid + gains_to_be_made) * investments
+
 
 # Choose draw
 # INPUT: board: is the current state of the game.  
@@ -154,12 +278,24 @@ def expected_play(board, player):
 # OUTPUT: draw_string, a string of the format "deck" or "$color", indicates draw.
 def choose_draw(board, player, strategy):
 # Start with a "simple" strategy
-    if strategy == "simple":
+    if strategy == "simple" or strategy = "expected":
         draw_string = simple_draw(board, player)
 
     return draw_string
 
 def simple_draw(board, player):
+    # Simple draw
+    color_list = board.color_list
+    
+    for color in color_list:
+        discard_cards = getattr(board, color + "_" + discard)
+        discard_card = discard_cards[-1]
+        played_cards = getattr(board, color + "_" + player)
+        if board.get_color_high_val(player, color) <= discard_card.value or len(played_cards) == 0:
+            
+        
+        
+
     # A simple strategy. 
     color_list = board.color_list
     color_values = {'red': 0, 'green': 0, 'white': 0, 'blue': 0, 'yellow': 0}
@@ -209,3 +345,7 @@ def simple_draw(board, player):
         draw_string = max_color
         
     return draw_string
+
+###
+
+
