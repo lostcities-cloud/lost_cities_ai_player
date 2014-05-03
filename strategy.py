@@ -34,7 +34,7 @@
 # cards, shuffles it and deals 8 cards to each hand.
 #
 # get_color_value(player, color): Returns face value of $color cards
-≈# played by $player (no investments)
+# played by $player (no investments)
 #
 # get_color_multiplier(player, color): Returns number of played
 # multipliers for $player on $color
@@ -58,6 +58,9 @@
 #        strategy: string which indicates which strategy to use in making decision
 #
 # OUTPUT: card_string.  A string of format "discard $color $value" or "$color $value"
+
+import lost_cities as lc
+
 def choose_play(board, player, strategy):
     # Start with a "simple" strategy
     if strategy == "simple":
@@ -117,6 +120,13 @@ def simple_play(board, player):
     for color in color_list:
         card_list = hand_by_colors[color]
         for c in card_list:
+            # value = 1
+#             if card_str[1] != 'i':
+#                 value = int(card_str[1,:])
+
+#             c = lc.card(card_str[0], value)
+            print color + " " + player
+            print color_values[color] + color_hand_values[color]
             if (color_values[color] + color_hand_values[color]) >= 20:
                 if c.value < min_card_over_threshold_value and c.value >= color_high_val[color]:
                     min_card_over_threshold = c
@@ -150,20 +160,29 @@ def expected_play(board, player):
     card_values = {}
 
     for c in hand:
-        card_values[c] = expected_value(c, board, player)
+        card_values[str(c)] = expected_value(c, board, player)
 
-    max_card = card("blue",1)
+    max_card = lc.card("blue",1)
     max = -1000
-    min_card = card("blue",1)
+    min_card = lc.card("blue",1)
     min = 1000
+    # print "Player " + player + "'s card values: " + str(card_values)
     for c in card_values:
         if card_values[c] > max:
             max = card_values[c]
-            max_card = c
+            value = 1
+            if c[1] != 'i':
+                value = int(c[1:])
+
+            max_card = lc.card(c[0], value)
 
         if card_values[c] < min:
             min = card_values[c]
-            min_card = c
+            value = 1
+            if c[1] != 'i':
+                value = int(c[1:])
+
+            min_card = lc.card(c[0], value)
 
     if max < 0:
         return "discard " + min_card.color + " " + str(min_card.value)
@@ -188,27 +207,26 @@ def expected_value(play_card, board, player):
         return -81
 
     # Make a list of all cards above the value
-    
     card_list = {}
     for i in range(10):
-        c = card(play_card.color, i+1)
+        c = lc.card(play_card.color, i+1)
         if i+1 >= play_card.value:
             if i+1 == 1:
                 # Aggregated weighting for investments
-                card_list[c] = 1.5
+                card_list[str(c)] = 1.5
             else:
-                card_list[c] = 0.5
+                card_list[str(c)] = 0.5
     
     
     # Now go through the player's hand
     hand = getattr(board, "hand_" + player)
     
     for c in hand:
-        if c in card_list:
+        if str(c) in card_list:
             if c.value == 1:
-                card_list[c] += 0.5
+                card_list[str(c)] += 0.5
             else:
-                card_list[c] = 1.0
+                card_list[str(c)] = 1.0
 
     enemy_pile = []
     if player != 'a':
@@ -222,11 +240,11 @@ def expected_value(play_card, board, player):
         return -90
 
     for c in enemy_pile:
-        if c in card_list:
+        if str(c) in card_list:
             if c.value == 1:
-                card_list[c] += -0.5
+                card_list[str(c)] += -0.5
             else:
-                card_list[c] = 0
+                card_list[str(c)] = 0
 
     # Check through discard pile, note that the exponential fall-off
     # is a crude approximation
@@ -234,40 +252,62 @@ def expected_value(play_card, board, player):
     
     count = 0
     for c in discard_pile:
-        if c in card_list:
+        if str(c) in card_list:
             if c.value == 1:
                 # combined investment weighting
-                card_list[c] += (0.5)**(count) - 0.5
+                card_list[str(c)] += (0.5)**(count) - 0.5
             else:    
-                card_list[c] = (0.5)**(count)
+                card_list[str(c)] = (0.5)**(count)
         count += 1
 
     # Check about seen cards
     seen_pile = board.seen_cards
     for c in seen_pile:
-        if c in card_list:
+        if str(c) in card_list:
             if seen_pile[c] == enemy:
                 # Note, this isn't quite accurate, c could be
                 # discarded by the other player, though it is unlikely
-                card_list[c] = 0
+                card_list[str(c)] = 0
+
+    # Adjustment by cards lower that haven't been played, but could
+    # be. Region is commented because test show this does not work as
+    # coded. I think it may just need some adjustments, but the
+    # current strategy discounts too much.  Needs to be done by
+    # estimating likelihood of getting each card...which I am
+    # currently estimating, whereas it needs to be done by calculating.
+    opportunity_cost = 0
+#     for card_str in card_list:
+#         value = 1
+#         if card_str[1] != 'i':
+#             value = int(card_str[1:])
+        
+#         if value > high_val and value < play_card.value:
+#             opportunity_cost -= value * card_list[card_str]
 
     # Now, add up score, find 
     cost_to_be_paid = 0
+    investments = 0
     if play_card.value > 1:
         investments = board.get_color_multiplier(player, play_card.color)
     else:
-        investments = (board.get_color_multiplier(player, play_card.color) - 1.0) * 0.5 + card_list[card(play_card.color, 1)]
+        investments = (board.get_color_multiplier(player, play_card.color) - 1.0) * 0.5 + card_list[str(lc.card(play_card.color, 1))] + 1.0
 
     gains_to_be_made = 0
     
-    if board.get_color_high_val(player, play_card.color) != 0:
+    if board.get_color_high_val(player, play_card.color) == 0:
         cost_to_be_paid = -20
     
-    for c in card_list:
-        if c.value != 1:
-            gains_to_be_made += card_list[c] * c.value
+    for card_string in card_list:
+        
+        value = 1
+        if card_string[1] != 'i':
+            value = int(card_string[1:])
 
-    return (cost_to_be_paid + gains_to_be_made) * investments
+        c = lc.card(card_string[0], value)
+        if c.value != 1:
+            gains_to_be_made += card_list[str(c)] * c.value
+
+    return (cost_to_be_paid + gains_to_be_made + opportunity_cost) * investments
 
 
 # Choose draw
@@ -278,7 +318,7 @@ def expected_value(play_card, board, player):
 # OUTPUT: draw_string, a string of the format "deck" or "$color", indicates draw.
 def choose_draw(board, player, strategy):
 # Start with a "simple" strategy
-    if strategy == "simple" or strategy = "expected":
+    if strategy == "simple" or strategy == "expected":
         draw_string = simple_draw(board, player)
 
     return draw_string
@@ -287,15 +327,12 @@ def simple_draw(board, player):
     # Simple draw
     color_list = board.color_list
     
-    for color in color_list:
-        discard_cards = getattr(board, color + "_" + discard)
-        discard_card = discard_cards[-1]
-        played_cards = getattr(board, color + "_" + player)
-        if board.get_color_high_val(player, color) <= discard_card.value or len(played_cards) == 0:
+#     for color in color_list:
+#         discard_cards = getattr(board, color + "_" + discard)
+#         discard_card = discard_cards[-1]
+#         played_cards = getattr(board, color + "_" + player)
+#         if board.get_color_high_val(player, color) <= discard_card.value or len(played_cards) == 0:
             
-        
-        
-
     # A simple strategy. 
     color_list = board.color_list
     color_values = {'red': 0, 'green': 0, 'white': 0, 'blue': 0, 'yellow': 0}

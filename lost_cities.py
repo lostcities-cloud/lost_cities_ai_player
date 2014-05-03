@@ -21,9 +21,12 @@ class card:
 
     # basic functions
     def __init__(self, color, value):
-        if type(color) is not str:
+        if type(color) is not str or len(color) == 0:
             print "Color must be a string"
             sys.exit(1)
+
+        if value == "i":
+            value = 1
         
         color_valid = self.set_color(color)
         value_valid = self.set_value(value)
@@ -67,6 +70,11 @@ class card:
         if any(new_color == x for x in self.color_list):
             self.color = new_color
             return True
+        elif any(new_color == x[0] for x in self.color_list):
+            for color in self.color_list:
+                if color[0] == new_color:
+                    self.color = color
+                    return True
         else:
             print "Not a valid color"
             return False
@@ -202,14 +210,14 @@ class game_board:
                     self.deck.append(c1)
                     self.deck.append(c2)
                     self.deck.append(c3)
-                    seen_cards[str(c1)] = 'unseen'
-                    seen_cards[str(c2)] = 'unseen'
-                    seen_cards[str(c3)] = 'unseen'
+                    self.seen_cards[str(c1)] = 'unseen'
+                    self.seen_cards[str(c2)] = 'unseen'
+                    self.seen_cards[str(c3)] = 'unseen'
                 else:
                     # Once card for all others
                     c = card(color, i+1)
                     self.deck.append(c)
-                    seen_cards[str(c)] = 'unseen'
+                    self.seen_cards[str(c)] = 'unseen'
 
 
         # Shuffle self.deck
@@ -587,9 +595,9 @@ def computer_turn(player, board, play_strat, draw_strat, suppress_output=True):
 
     played_card = card('blue', 2)
     
- #   print player + " made play " + play_string
-  #  print str(getattr(board, "hand_" + player))
-   # print str(board)
+    print player + " made play " + play_string
+    print str(getattr(board, "hand_" + player))
+    print str(board)
         
         # Parse play into string
     if play_list[0] == 'discard':

@@ -12,8 +12,8 @@ game_not_ended = True
 
 print "Welcome to Aaron Adcock's simulation of the Lost Cities game"
 print "You will be player a"
-print "Computer difficulty options are currently: simple"
-computer_play_strat = "simple"
+print "Computer difficulty options are currently: expected"
+computer_play_strat = "expected"
 computer_draw_strat = "simple"
 
 
