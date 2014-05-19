@@ -470,7 +470,7 @@ class game_board:
 
         # Find and delete card in hand
         count = 0
-        while count < len(hand):
+        while count < len(hand) and not card_found:
             h = hand[count]
             if h == played_card:
                 card_found = True

@@ -25,7 +25,7 @@ while game_not_ended:
     print board
     
     print "Player a's hand:"
-    print board.hand_a
+    print sorted(board.hand_a)
 
     print "Number of cards in deck: " + str(len(board.deck))
     # Player a's turn, most of this code is just to make sure that the
@@ -96,10 +96,13 @@ while game_not_ended:
         game_not_ended = False
     # B's turn
     if game_not_ended:
-        success = computer_turn('b', board, computer_play_strat, computer_draw_strat, False)
+        success = computer_turn('b', board, computer_play_strat, computer_draw_strat, True)
 
     if len(board.deck) == 0:
         game_not_ended = False
+
+print "Player A score: " + str(board.a_score)
+print "Player B score: " + str(board.b_score)
 
 if board.a_score > board.b_score:
     print "Player A wins!"
