@@ -1,0 +1,26 @@
+This repository contains code for a virtual version of the game "Lost
+Cities".  My family owns the game and after a Christmas spent playing
+the game over-and-over, I wanted to come up with a systematic way of
+testing out various strategies.  This eventually morphed into a desire
+to analyze the game probabilistically.  But that moves away from the
+purpose of this README.
+
+The main structures needed for playing the game are found in
+lost_cities.py.  In that file, there is a card class and a board
+class.  The game_board class contains everything needed for playing
+the game.  There are also several functions (play_game and
+computer_turn) which automate a computer vs computer game as well as
+single turns for the AI.  
+
+The strategy.py game contains strategies for AI's the game.  There is
+currently only one strategy available for playing/drawing, though a
+second strategy is being developed in one of the branches.  The
+comments in this file are more extensive and are intended to allow for
+additional strategies to be added.
+
+The files comp_v_comp.py and play_computer.py are the two scripts for
+actually playing the game.  The first, comp_v_comp.py, allows the user
+to select play/draw strategies for two AI's and then simulate n games
+against each other.  The play_computer.py allows the user to play an
+AI.
+
