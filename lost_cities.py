@@ -538,6 +538,7 @@ def play_game(player_a, a_play_strat, a_draw_strat, player_b, b_play_strat, b_dr
         else:
             game_not_ended = False
 
+    print str(board)
             
     a_score = board.calc_score('a')
     b_score = board.calc_score('b')

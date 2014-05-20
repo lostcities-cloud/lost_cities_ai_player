@@ -65,6 +65,7 @@ for x in range(num_games):
 
 # Present statistical results
 print "Results: Player a won " + str(1.0 * (a_first_wins + a_last_wins) / num_games) + " Player b won " + str(1.0 * (b_first_wins + b_last_wins) / num_games)
+print "Ties: " + str(ties)
 print "Player a's average score was " + str(1.0 * (a_first_avg_score + a_last_avg_score) / num_games)
 print "Player b's average score was " + str(1.0 * (b_first_avg_score + b_last_avg_score) / num_games)
 print "When Player a goes first, a wins " + str((2.0 * a_first_wins) / num_games)
