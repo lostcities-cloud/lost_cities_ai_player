@@ -595,8 +595,8 @@ def computer_turn(player, board, play_strat, draw_strat, suppress_output=True):
 
     played_card = card('blue', 2)
     
-    print player + " made play " + play_string
-    print str(getattr(board, "hand_" + player))
+#     print player + " made play " + play_string
+#     print str(getattr(board, "hand_" + player))
     print str(board)
         
         # Parse play into string

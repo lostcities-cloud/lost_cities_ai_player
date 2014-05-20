@@ -8,6 +8,8 @@ from lost_cities import *
 print "Welcome to computer vs computer Lost Cities." 
 
 # pick strategies.  This interface is poor, but it works for now.
+# currently, use expected, expected, simple, simple, 100 To see the
+# computer play 100 games against itself with two different strategies
 print "Please enter a string which represents player a's play strategy: "
 a_play_strat = raw_input()
 
