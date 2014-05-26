@@ -1,6 +1,7 @@
 import random
 import sys
 import operator
+import re
 from strategy import *
 ############################################################
 # This module sets up a framework for playing lost cities  #
@@ -217,11 +218,11 @@ class game_board:
 
         self.deck = []
 
-        self.red_discard.append('\x1b[31m - \x1b[0m')
-        self.blue_discard.append('\x1b[34m - \x1b[0m')
-        self.green_discard.append('\x1b[32m - \x1b[0m')
-        self.white_discard.append('\x1b[37m - \x1b[0m')
-        self.yellow_discard.append('\x1b[33m - \x1b[0m')
+        self.red_discard.append('\x1b[31m-\x1b[0m')
+        self.blue_discard.append('\x1b[34m-\x1b[0m')
+        self.green_discard.append('\x1b[32m-\x1b[0m')
+        self.white_discard.append('\x1b[37m-\x1b[0m')
+        self.yellow_discard.append('\x1b[33m-\x1b[0m')
 
         for color in self.color_list:
             for i in range(10):
@@ -329,30 +330,33 @@ class game_board:
             yellow_b_str = str(sorted(self.yellow_b, key = lambda cards: cards.value))
             yellow_b_str = yellow_b_str[1:-1].translate(None, ',')
     
-        # Print Board
+        # Print Board, note that \x1b[*m is an ANSI color change
+        # sequence for the terminal.  Because the python len()
+        # function counts portions of these as characters, I use
+        # regexp to remove them from the string
         self.a_score = self.calc_score('a')
         self.b_score = self.calc_score('b') 
         ret_string =  " " * 15 + "Player A" + " " * 12 + "Discard" + " " * 12 + "Player B" 
-        ret_string = ret_string + "\x1b[31m\nRed:\x1b[0m    " + " " * (red_space + red_extra) + red_a_str   
-        ret_string = ret_string + " D" + " " * (2 - len(str(self.red_discard[-1])) / 2) 
+        ret_string = ret_string + "\x1b[31m\nRed:\x1b[0m   " + " " * (red_space + red_extra) + red_a_str   
+        ret_string = ret_string + " D" + " " * (2 - len(re.sub('\x1b.*?m', '', str(self.red_discard[-1]))) / 2) 
         ret_string = ret_string + str(self.red_discard[-1])  
-        ret_string = ret_string + " " * (2 - (len(str(self.red_discard[-1])) - 1) / 2) + "D " + red_b_str  
-        ret_string = ret_string + "\x1b[32m\nGreen:\x1b[0m  " + " " * (green_space + green_extra) + green_a_str   
-        ret_string = ret_string + " D" + " " * (2 - len(str(self.green_discard[-1])) / 2) 
+        ret_string = ret_string + " " * (2 - (len(re.sub('\x1b.*?m', '', str(self.red_discard[-1]))) - 1) / 2) + "D " + red_b_str  
+        ret_string = ret_string + "\x1b[32m\nGreen:\x1b[0m " + " " * (green_space + green_extra) + green_a_str   
+        ret_string = ret_string + " D" + " " * (2 - len(re.sub('\x1b.*?m', '', str(self.green_discard[-1]))) / 2) 
         ret_string = ret_string + str(self.green_discard[-1])  
-        ret_string = ret_string + " " * (2 - (len(str(self.green_discard[-1])) - 1) / 2) + "D " + green_b_str 
-        ret_string = ret_string + "\x1b[37m\nWhite:\x1b[0m  " + " " * (white_space + white_extra) + white_a_str  
-        ret_string = ret_string + " D" + " " * (2 - len(str(self.white_discard[-1])) / 2) 
+        ret_string = ret_string + " " * (2 - (len(re.sub('\x1b.*?m', '', str(self.green_discard[-1]))) - 1) / 2) + "D " + green_b_str 
+        ret_string = ret_string + "\x1b[37m\nWhite:\x1b[0m " + " " * (white_space + white_extra) + white_a_str  
+        ret_string = ret_string + " D" + " " * (2 - len(re.sub('\x1b.*?m', '', str(self.white_discard[-1]))) / 2) 
         ret_string = ret_string + str(self.white_discard[-1])  
-        ret_string = ret_string + " " * (2 - (len(str(self.white_discard[-1])) - 1) / 2) + "D " + white_b_str  
-        ret_string = ret_string + "\x1b[34m\nBlue:\x1b[0m   " + " " * (blue_space + blue_extra) + blue_a_str 
-        ret_string = ret_string + " D" + " " * (2 - len(str(self.blue_discard[-1])) / 2) 
+        ret_string = ret_string + " " * (2 - (len(re.sub('\x1b.*?m', '', str(self.white_discard[-1]))) - 1) / 2) + "D " + white_b_str  
+        ret_string = ret_string + "\x1b[34m\nBlue:\x1b[0m  " + " " * (blue_space + blue_extra) + blue_a_str 
+        ret_string = ret_string + " D" + " " * (2 - len(re.sub('\x1b.*?m', '', str(self.blue_discard[-1]))) / 2) 
         ret_string = ret_string + str(self.blue_discard[-1]) 
-        ret_string = ret_string + " " * (2 - (len(str(self.blue_discard[-1])) - 1) / 2) + "D " + blue_b_str      
-        ret_string = ret_string + "\x1b[33m\nYellow:\x1b[0m "  + " " * (yellow_space + yellow_extra) + yellow_a_str  
-        ret_string = ret_string + " D" + " " * (2 - len(str(self.yellow_discard[-1])) / 2) 
+        ret_string = ret_string + " " * (2 - (len(re.sub('\x1b.*?m', '', str(self.blue_discard[-1]))) - 1) / 2) + "D " + blue_b_str      
+        ret_string = ret_string + "\x1b[33m\nYellow:\x1b[0m"  + " " * (yellow_space + yellow_extra) + yellow_a_str  
+        ret_string = ret_string + " D" + " " * (2 - len(re.sub('\x1b.*?m', '', str(self.yellow_discard[-1]))) / 2) 
         ret_string = ret_string + str(self.yellow_discard[-1])  
-        ret_string = ret_string + " " * (2 - (len(str(self.yellow_discard[-1])) - 1) / 2) + "D " + yellow_b_str  
+        ret_string = ret_string + " " * (2 - (len(re.sub('\x1b.*?m', '', str(self.yellow_discard[-1]))) - 1) / 2) + "D " + yellow_b_str  
         ret_string = ret_string + "\n--\nPlayer a's score is: " + str(self.a_score)
         ret_string = ret_string + "\nPlayer b's score is: " + str(self.b_score)
 
