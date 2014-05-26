@@ -101,6 +101,10 @@ while game_not_ended:
     if len(board.deck) == 0:
         game_not_ended = False
 
+print ""
+print board
+
+
 if board.a_score > board.b_score:
     print "Player A wins!"
 elif board.a_score < board.b_score:

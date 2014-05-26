@@ -32,16 +32,52 @@ class card:
             self.valid = True
     
     def __str__(self):
+        # Card value string. the \x1b[*** chooses color appropriately
+        # while the \x1b[0m sets values back to default
+        card_str = ""
+        if ((self.color)[0] == "r" or (self.color)[0] == "R"):
+            card_str = card_str + "\x1b[31m"
+        elif ((self.color)[0] == "b" or (self.color)[0] == "B"):
+            card_str = card_str + "\x1b[34m"
+        elif ((self.color)[0] == "w" or (self.color)[0] == "W"):
+            card_str = card_str + "\x1b[37m"
+        elif ((self.color)[0] == "g" or (self.color)[0] == "G"):
+            card_str = card_str + "\x1b[32m"
+        elif ((self.color)[0] == "y" or (self.color)[0] == "Y"):
+            card_str = card_str + "\x1b[33m"
+
         if self.value == 1:
-            return str(self.color)[0] + "i"
+            card_str = card_str + str(self.color)[0] + "i"
         else:
-            return str(self.color)[0] + str(self.value)
+            card_str = card_str + str(self.color)[0] + str(self.value)
+        
+        card_str = card_str + "\x1b[0m"
+
+        return card_str
 
     def __repr__(self):
+                # Card value string. the \x1b[*** chooses color appropriately
+        # while the \x1b[0m sets values back to default
+        card_str = ""
+        if ((self.color)[0] == "r" or (self.color)[0] == "R"):
+            card_str = card_str + "\x1b[31m"
+        elif ((self.color)[0] == "b" or (self.color)[0] == "B"):
+            card_str = card_str + "\x1b[34m"
+        elif ((self.color)[0] == "w" or (self.color)[0] == "W"):
+            card_str = card_str + "\x1b[37m"
+        elif ((self.color)[0] == "g" or (self.color)[0] == "G"):
+            card_str = card_str + "\x1b[32m"
+        elif ((self.color)[0] == "y" or (self.color)[0] == "Y"):
+            card_str = card_str + "\x1b[33m"
+
         if self.value == 1:
-            return str(self.color)[0] + "i"
+            card_str = card_str + str(self.color)[0] + "i"
         else:
-            return str(self.color)[0] + str(self.value)
+            card_str = card_str + str(self.color)[0] + str(self.value)
+        
+        card_str = card_str + "\x1b[0m"
+
+        return card_str
         
     def __lt__(self, other):
         # return true if self < other
@@ -181,11 +217,11 @@ class game_board:
 
         self.deck = []
 
-        self.red_discard.append('-')
-        self.blue_discard.append('-')
-        self.green_discard.append('-')
-        self.white_discard.append('-')
-        self.yellow_discard.append('-')
+        self.red_discard.append('\x1b[31m - \x1b[0m')
+        self.blue_discard.append('\x1b[34m - \x1b[0m')
+        self.green_discard.append('\x1b[32m - \x1b[0m')
+        self.white_discard.append('\x1b[37m - \x1b[0m')
+        self.yellow_discard.append('\x1b[33m - \x1b[0m')
 
         for color in self.color_list:
             for i in range(10):
@@ -210,6 +246,9 @@ class game_board:
         for i in range(8):
             self.hand_a.append(self.deck.pop())
             self.hand_b.append(self.deck.pop())
+
+        self.hand_a.sort()
+        self.hand_b.sort()
 
         
     def __str__(self):
@@ -292,28 +331,28 @@ class game_board:
     
         # Print Board
         self.a_score = self.calc_score('a')
-        self.b_score = self.calc_score('b')
+        self.b_score = self.calc_score('b') 
         ret_string =  " " * 15 + "Player A" + " " * 12 + "Discard" + " " * 12 + "Player B" 
-        ret_string = ret_string + "\x1b[31m\nRed:\x1b[0m   " + " " * (red_space + red_extra) + "\x1b[31m" + red_a_str + "\x1b[0m"  
-        ret_string = ret_string + " D"+ " " * (2 - len(str(self.red_discard[-1])) / 2) 
-        ret_string = ret_string + "\x1b[31m" + str(self.red_discard[-1]) + "\x1b[0m" 
-        ret_string = ret_string + " " * (2 - (len(str(self.red_discard[-1])) - 1) / 2) + "D " + "\x1b[31m" + red_b_str + "\x1b[0m" 
-        ret_string = ret_string + "\x1b[32m\nGreen:\x1b[0m " + " " * (green_space + green_extra) + "\x1b[32m" + green_a_str + "\x1b[0m"  
-        ret_string = ret_string + " D"+ " " * (2 - len(str(self.green_discard[-1])) / 2) 
-        ret_string = ret_string + "\x1b[32m" + str(self.green_discard[-1]) + "\x1b[0m" 
-        ret_string = ret_string + " " * (2 - (len(str(self.green_discard[-1])) - 1) / 2) + "D " + "\x1b[32m" + green_b_str + "\x1b[0m"
-        ret_string = ret_string + "\x1b[37m\nWhite:\x1b[0m " + " " * (white_space + white_extra) + "\x1b[37m" + white_a_str + "\x1b[0m" 
-        ret_string = ret_string + " D"+ " " * (2 - len(str(self.white_discard[-1])) / 2) 
-        ret_string = ret_string + "\x1b[37m" + str(self.white_discard[-1]) + "\x1b[0m" 
-        ret_string = ret_string + " " * (2 - (len(str(self.white_discard[-1])) - 1) / 2) + "D " + "\x1b[37m" + white_b_str + "\x1b[0m" 
-        ret_string = ret_string + "\x1b[34m\nBlue:\x1b[0m  " + " " * (blue_space + blue_extra) + "\x1b[34m" + blue_a_str + "\x1b[0m"
-        ret_string = ret_string + " D"+ " " * (2 - len(str(self.blue_discard[-1])) / 2) 
-        ret_string = ret_string + "\x1b[34m" + str(self.blue_discard[-1]) + "\x1b[0m"
-        ret_string = ret_string + " " * (2 - (len(str(self.blue_discard[-1])) - 1) / 2) + "D " + "\x1b[34m" + blue_b_str + "\x1b[0m"     
-        ret_string = ret_string + "\x1b[33m\nYellow:\x1b[0m" + " " * (yellow_space + yellow_extra) + "\x1b[33m" + yellow_a_str + "\x1b[0m" 
-        ret_string = ret_string + " D"+ " " * (2 - len(str(self.yellow_discard[-1])) / 2) 
-        ret_string = ret_string + "\x1b[33m" + str(self.yellow_discard[-1]) + "\x1b[0m" 
-        ret_string = ret_string + " " * (2 - (len(str(self.yellow_discard[-1])) - 1) / 2) + "D " + "\x1b[33m" + yellow_b_str + "\x1b[0m" 
+        ret_string = ret_string + "\x1b[31m\nRed:\x1b[0m    " + " " * (red_space + red_extra) + red_a_str   
+        ret_string = ret_string + " D" + " " * (2 - len(str(self.red_discard[-1])) / 2) 
+        ret_string = ret_string + str(self.red_discard[-1])  
+        ret_string = ret_string + " " * (2 - (len(str(self.red_discard[-1])) - 1) / 2) + "D " + red_b_str  
+        ret_string = ret_string + "\x1b[32m\nGreen:\x1b[0m  " + " " * (green_space + green_extra) + green_a_str   
+        ret_string = ret_string + " D" + " " * (2 - len(str(self.green_discard[-1])) / 2) 
+        ret_string = ret_string + str(self.green_discard[-1])  
+        ret_string = ret_string + " " * (2 - (len(str(self.green_discard[-1])) - 1) / 2) + "D " + green_b_str 
+        ret_string = ret_string + "\x1b[37m\nWhite:\x1b[0m  " + " " * (white_space + white_extra) + white_a_str  
+        ret_string = ret_string + " D" + " " * (2 - len(str(self.white_discard[-1])) / 2) 
+        ret_string = ret_string + str(self.white_discard[-1])  
+        ret_string = ret_string + " " * (2 - (len(str(self.white_discard[-1])) - 1) / 2) + "D " + white_b_str  
+        ret_string = ret_string + "\x1b[34m\nBlue:\x1b[0m   " + " " * (blue_space + blue_extra) + blue_a_str 
+        ret_string = ret_string + " D" + " " * (2 - len(str(self.blue_discard[-1])) / 2) 
+        ret_string = ret_string + str(self.blue_discard[-1]) 
+        ret_string = ret_string + " " * (2 - (len(str(self.blue_discard[-1])) - 1) / 2) + "D " + blue_b_str      
+        ret_string = ret_string + "\x1b[33m\nYellow:\x1b[0m "  + " " * (yellow_space + yellow_extra) + yellow_a_str  
+        ret_string = ret_string + " D" + " " * (2 - len(str(self.yellow_discard[-1])) / 2) 
+        ret_string = ret_string + str(self.yellow_discard[-1])  
+        ret_string = ret_string + " " * (2 - (len(str(self.yellow_discard[-1])) - 1) / 2) + "D " + yellow_b_str  
         ret_string = ret_string + "\n--\nPlayer a's score is: " + str(self.a_score)
         ret_string = ret_string + "\nPlayer b's score is: " + str(self.b_score)
 
@@ -509,6 +548,7 @@ class game_board:
             draw_card = self.deck.pop()
 
         getattr(self, "hand_" + player).append(draw_card)
+        getattr(self, "hand_" + player).sort()
         return True
 
 def play_game(player_a, a_play_strat, a_draw_strat, player_b, b_play_strat, b_draw_strat):
