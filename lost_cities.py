@@ -59,8 +59,17 @@ class card:
 
         return card_str
 
+    def no_color_str(self):
+        card_str = ""
+        if self.value == 1:
+            card_str = card_str + str(self.color)[0] + "i"
+        else:
+            card_str = card_str + str(self.color)[0] + str(self.value)
+
+        return card_str
+
     def __repr__(self):
-                # Card value string. the \x1b[*** chooses color appropriately
+        # Card value string. the \x1b[*** chooses color appropriately
         # while the \x1b[0m sets values back to default
         card_str = ""
         if ((self.color)[0] == "r" or (self.color)[0] == "R"):
@@ -156,7 +165,6 @@ class card:
         else:
             self.valid = False
         return True
-
 
 # The board for playing cards
 class game_board:

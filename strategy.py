@@ -161,7 +161,7 @@ def expected_play(board, player):
     card_values = {}
 
     for c in hand:
-        card_values[str(c)] = expected_value(c, board, player)
+        card_values[c.no_color_str()] = expected_value(c, board, player)
 
     max_card = lc.card("blue",1)
     max = -1000
@@ -214,20 +214,19 @@ def expected_value(play_card, board, player):
         if i+1 >= play_card.value:
             if i+1 == 1:
                 # Aggregated weighting for investments
-                card_list[str(c)] = 1.5
+                card_list[c.no_color_str()] = 1.5
             else:
-                card_list[str(c)] = 0.5
+                card_list[c.no_color_str()] = 0.5
     
     
     # Now go through the player's hand
     hand = getattr(board, "hand_" + player)
-    
     for c in hand:
-        if str(c) in card_list:
+        if c.no_color_str() in card_list:
             if c.value == 1:
-                card_list[str(c)] += 0.5
+                card_list[c.no_color_str()] += 0.5
             else:
-                card_list[str(c)] = 1.0
+                card_list[c.no_color_str()] = 1.0
 
     enemy_pile = []
     if player != 'a':
@@ -241,34 +240,46 @@ def expected_value(play_card, board, player):
         return -90
 
     for c in enemy_pile:
-        if str(c) in card_list:
+        if c.no_color_str() in card_list:
             if c.value == 1:
-                card_list[str(c)] += -0.5
+                card_list[c.no_color_str()] += -0.5
             else:
-                card_list[str(c)] = 0
+                card_list[c.no_color_str()] = 0
 
     # Check through discard pile, note that the exponential fall-off
     # is a crude approximation
     discard_pile = getattr(board, play_card.color + "_discard")
     
-    count = 0
-    for c in discard_pile:
-        if str(c) in card_list:
-            if c.value == 1:
-                # combined investment weighting
-                card_list[str(c)] += (0.5)**(count) - 0.5
-            else:    
-                card_list[str(c)] = (0.5)**(count)
-        count += 1
+    if len(discard_pile) > 1:
+        count = 0
+        for c in discard_pile:
+            if type(c) != type('str'):
+                c_str = c.no_color_str()
+                if c_str in card_list:
+                    if (c_str[1] == 1 or c_str[1] == i) and (len(c_str) < 3):
+                        # combined investment weighting
+                        card_list[c_str] += (0.5)**(count) - 0.5
+                    else:    
+                        card_list[c_str] = (0.5)**(count)
+                count += 1
 
     # Check about seen cards
     seen_pile = board.seen_cards
     for c in seen_pile:
-        if str(c) in card_list:
+        c_str = c[8:]
+        if c_str[1] == 1:
+            if c_str[2] == 0:
+                c_str = c_str[0:2]
+            else:
+                c_str = c_str[0:1]
+        else:
+            c_str = c_str[0:1]
+
+        if c_str in card_list:
             if seen_pile[c] == enemy:
                 # Note, this isn't quite accurate, c could be
                 # discarded by the other player, though it is unlikely
-                card_list[str(c)] = 0
+                card_list[c_str] = 0
 
     # Adjustment by cards lower that haven't been played, but could
     # be. Region is commented because test show this does not work as
@@ -291,7 +302,7 @@ def expected_value(play_card, board, player):
     if play_card.value > 1:
         investments = board.get_color_multiplier(player, play_card.color)
     else:
-        investments = (board.get_color_multiplier(player, play_card.color) - 1.0) * 0.5 + card_list[str(lc.card(play_card.color, 1))] + 1.0
+        investments = (board.get_color_multiplier(player, play_card.color) - 1.0) * 0.5 + card_list[(play_card.color[0] + 'i')] + 1.0
 
     gains_to_be_made = 0
     
@@ -299,14 +310,13 @@ def expected_value(play_card, board, player):
         cost_to_be_paid = -20
     
     for card_string in card_list:
-        
         value = 1
         if card_string[1] != 'i':
             value = int(card_string[1:])
 
         c = lc.card(card_string[0], value)
         if c.value != 1:
-            gains_to_be_made += card_list[str(c)] * c.value
+            gains_to_be_made += card_list[c.no_color_str()] * c.value
 
     return (cost_to_be_paid + gains_to_be_made + opportunity_cost) * investments
 
