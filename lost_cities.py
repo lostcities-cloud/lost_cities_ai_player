@@ -22,9 +22,12 @@ class card:
 
     # basic functions
     def __init__(self, color, value):
-        if type(color) is not str:
+        if type(color) is not str or len(color) == 0:
             print "Color must be a string"
             sys.exit(1)
+
+        if value == "i":
+            value = 1
         
         color_valid = self.set_color(color)
         value_valid = self.set_value(value)
@@ -104,6 +107,11 @@ class card:
         if any(new_color == x for x in self.color_list):
             self.color = new_color
             return True
+        elif any(new_color == x[0] for x in self.color_list):
+            for color in self.color_list:
+                if color[0] == new_color:
+                    self.color = color
+                    return True
         else:
             print "Not a valid color"
             return False
@@ -183,6 +191,9 @@ class game_board:
 
     color_list = ['red', 'green', 'white', 'blue', 'yellow']
 
+    # Only need one set, computers don't forget.
+    seen_cards = {}
+
     deck = []
 
     def __init__(self):
@@ -224,6 +235,8 @@ class game_board:
         self.white_discard.append('\x1b[37m-\x1b[0m')
         self.yellow_discard.append('\x1b[33m-\x1b[0m')
 
+        self.seen_cards = {}
+
         for color in self.color_list:
             for i in range(10):
                 if i+1 == 1:
@@ -234,10 +247,14 @@ class game_board:
                     self.deck.append(c1)
                     self.deck.append(c2)
                     self.deck.append(c3)
+                    self.seen_cards[str(c1)] = 'unseen'
+                    self.seen_cards[str(c2)] = 'unseen'
+                    self.seen_cards[str(c3)] = 'unseen'
                 else:
                     # Once card for all others
                     c = card(color, i+1)
                     self.deck.append(c)
+                    self.seen_cards[str(c)] = 'unseen'
 
 
         # Shuffle self.deck
@@ -494,8 +511,9 @@ class game_board:
         card_found = False
         hand = getattr(self, "hand_" + player)
 
+        # Find and delete card in hand
         count = 0
-        while count < len(hand):
+        while count < len(hand) and not card_found:
             h = hand[count]
             if h == played_card:
                 card_found = True
@@ -505,21 +523,29 @@ class game_board:
         
         ret_val = True
         if card_found:
-            if discard:            
+            if discard:
+                # Update discard pile
                 (getattr(self, played_card.color + "_discard")).append(played_card)
+                # Update seen cards
+                self.seen_cards[str(played_card)] = "discard"
+                # Set discard color to prevent draw of that color
                 setattr(self, "discard_" + player, played_card.color) 
                 
             else:
+                # Clear discard color
                 setattr(self, "discard_" + player, "") 
                 
-            # Check on validity of play
+                # Check on validity of play
                 cards_on_board = getattr(self, played_card.color + "_" + player);
                 if len(cards_on_board) == 0:
                     cards_on_board.append(played_card)
                 else:
                     high_val = cards_on_board[-1].value
                     if played_card.value >= high_val:
+                        # Update played cards
                         cards_on_board.append(played_card)
+                        # Update seen cards
+                        self.seen_cards[str(played_card)] = "played"
                     else:
                         ret_val = False
                         print "Not a valid play"
@@ -546,9 +572,14 @@ class game_board:
                 valid_color = True
         
         if valid_color and draw_color != getattr(self, "discard_" + player) and len(getattr(self, draw_color + "_discard")) > 1:
+            # Pick card
             draw_card = getattr(self, draw_color + "_discard")[-1]
+            # Update discard pile
             del getattr(self, draw_color + "_discard")[-1]
+            # Update seen cards
+            self.seen_cards[str(draw_card)] = str(player)
         else:
+            # Card from deck, not seen
             draw_card = self.deck.pop()
 
         getattr(self, "hand_" + player).append(draw_card)
